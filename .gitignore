@@ -348,3 +348,14 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+/src/Skoruba.IdentityServer4.Admin/appsettings.production.json
+/src/Skoruba.IdentityServer4.Admin/Scripts/Libs/
+/src/Skoruba.IdentityServer4.Admin/Data/Migrations/
+
+# Don't ignore these log folders
+!/src/Skoruba.IdentityServer4.Admin/Resources/Views/Log/
+!/src/Skoruba.IdentityServer4.Admin.BusinessLogic/Dtos/Log/
+!/src/Skoruba.IdentityServer4.Admin/Views/Log/
+!/src/Skoruba.IdentityServer4.Admin.BusinessLogic/Events/Log/
+/src/Skoruba.IdentityServer4.Admin.Api/appsettings.Production.js
