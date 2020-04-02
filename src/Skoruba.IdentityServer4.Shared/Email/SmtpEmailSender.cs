@@ -36,15 +36,17 @@ namespace Skoruba.IdentityServer4.Shared.Email
             _logger.LogInformation($"Sending email: {email}, subject: {subject}, message: {htmlMessage}");
             try
             {
-                var from = String.IsNullOrEmpty(_configuration.From) ? _configuration.Login : _configuration.From;
-                var mail = new MailMessage(from, email);
-                mail.IsBodyHtml = true;
-                mail.Subject = subject;
-                mail.Body = htmlMessage;
-                
+                var from = string.IsNullOrEmpty(_configuration.From) ? _configuration.Login : _configuration.From;
+                var mail = new MailMessage(from, email)
+                {
+                    IsBodyHtml = true,
+                    Subject = subject,
+                    Body = htmlMessage
+                };
+
                 _client.Send(mail);
                 _logger.LogInformation($"Email: {email}, subject: {subject}, message: {htmlMessage} successfully sent");
-                
+
                 return Task.CompletedTask;
             }
             catch (Exception ex)

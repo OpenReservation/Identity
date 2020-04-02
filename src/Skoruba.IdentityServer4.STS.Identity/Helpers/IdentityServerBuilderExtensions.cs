@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using IdentityServer4;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Skoruba.IdentityServer4.STS.Identity.Configuration;
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Skoruba.IdentityServer4.STS.Identity.Configuration;
 
 namespace Skoruba.IdentityServer4.STS.Identity.Helpers
 {
@@ -28,75 +27,13 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
         {
             var certificateConfiguration = configuration.GetSection(nameof(CertificateConfiguration)).Get<CertificateConfiguration>();
 
-            if (certificateConfiguration.UseSigningCertificateThumbprint)
-            {
-                if (string.IsNullOrWhiteSpace(certificateConfiguration.SigningCertificateThumbprint))
-                {
-                    throw new Exception(SigningCertificateThumbprintNotFound);
-                }
-
-                StoreLocation storeLocation = StoreLocation.LocalMachine;
-                bool validOnly = certificateConfiguration.CertificateValidOnly;
-
-                // Parse the Certificate StoreLocation
-                string certStoreLocationLower = certificateConfiguration.CertificateStoreLocation.ToLower();
-                if (certStoreLocationLower == StoreLocation.CurrentUser.ToString().ToLower() ||
-                    certificateConfiguration.CertificateStoreLocation == ((int)StoreLocation.CurrentUser).ToString())
-                {
-                    storeLocation = StoreLocation.CurrentUser;
-                }
-                else if (certStoreLocationLower == StoreLocation.LocalMachine.ToString().ToLower() ||
-                         certStoreLocationLower == ((int)StoreLocation.LocalMachine).ToString())
-                {
-                    storeLocation = StoreLocation.LocalMachine;
-                }
-                else { storeLocation = StoreLocation.LocalMachine; validOnly = true; }
-
-                // Open Certificate
-                var certStore = new X509Store(StoreName.My, storeLocation);
-                certStore.Open(OpenFlags.ReadOnly);
-
-                var certCollection = certStore.Certificates.Find(X509FindType.FindByThumbprint, certificateConfiguration.SigningCertificateThumbprint, validOnly);
-                if (certCollection.Count == 0)
-                {
-                    throw new Exception(CertificateNotFound);
-                }
-
-                var certificate = certCollection[0];
-
-                builder.AddSigningCredential(certificate);
-            }
-            else if (certificateConfiguration.UseSigningCertificatePfxFile)
-            {
-                if (string.IsNullOrWhiteSpace(certificateConfiguration.SigningCertificatePfxFilePath))
-                {
-                    throw new Exception(SigningCertificatePathIsNotSpecified);
-                }
-
-                if (File.Exists(certificateConfiguration.SigningCertificatePfxFilePath))
-                {
-
-                    try
-                    {
-                        builder.AddSigningCredential(new X509Certificate2(certificateConfiguration.SigningCertificatePfxFilePath, certificateConfiguration.SigningCertificatePfxFilePassword));
-                    }
-                    catch (Exception e)
-                    {
-                        throw new Exception("There was an error adding the key file - during the creation of the signing key", e);
-                    }
-                }
-                else
-                {
-                    throw new Exception($"Signing key file: {certificateConfiguration.SigningCertificatePfxFilePath} not found");
-                }
-            }
-            else if (certificateConfiguration.UseTemporarySigningKeyForDevelopment)
+            if (certificateConfiguration.UseTemporarySigningKeyForDevelopment)
             {
                 builder.AddDeveloperSigningCredential();
             }
             else
             {
-                throw new Exception("Signing credential is not specified");
+                builder.AddSigningCredential(RSAKeyUtils.GetKey(), IdentityServerConstants.RsaSigningAlgorithm.RS256);
             }
 
             return builder;
@@ -132,7 +69,6 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
                 var certificate = certCollection[0];
 
                 builder.AddValidationKey(certificate);
-
             }
             else if (certificateConfiguration.UseValidationCertificatePfxFile)
             {
@@ -146,7 +82,6 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
                     try
                     {
                         builder.AddValidationKey(new X509Certificate2(certificateConfiguration.ValidationCertificatePfxFilePath, certificateConfiguration.ValidationCertificatePfxFilePassword));
-
                     }
                     catch (Exception e)
                     {

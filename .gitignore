@@ -359,3 +359,5 @@ MigrationBackup/
 !/src/Skoruba.IdentityServer4.Admin/Views/Log/
 !/src/Skoruba.IdentityServer4.Admin.BusinessLogic/Events/Log/
 /src/Skoruba.IdentityServer4.Admin.Api/appsettings.Production.js
+/src/Skoruba.IdentityServer4.STS.Identity/key.json
+/src/Skoruba.IdentityServer4.STS.Identity/appsettings.Development.json

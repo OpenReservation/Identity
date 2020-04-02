@@ -1,11 +1,11 @@
-﻿using System.Reflection;
-using IdentityServer4.EntityFramework.Storage;
+﻿using IdentityServer4.EntityFramework.Storage;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Skoruba.AuditLogging.EntityFramework.DbContexts;
 using Skoruba.AuditLogging.EntityFramework.Entities;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
+using System.Reflection;
 
 namespace Skoruba.IdentityServer4.Admin.EntityFramework.SqlServer.Extensions
 {
@@ -52,7 +52,7 @@ namespace Skoruba.IdentityServer4.Admin.EntityFramework.SqlServer.Extensions
             services.AddDbContext<TAuditLoggingDbContext>(options => options.UseSqlServer(auditLoggingConnectionString, optionsSql => optionsSql.MigrationsAssembly(migrationsAssembly)));
 
             // DataProtectionKey DB from existing connection
-            if(!string.IsNullOrEmpty(dataProtectionConnectionString))
+            if (!string.IsNullOrEmpty(dataProtectionConnectionString))
                 services.AddDbContext<TDataProtectionDbContext>(options => options.UseSqlServer(dataProtectionConnectionString, sql => sql.MigrationsAssembly(migrationsAssembly)));
         }
 
@@ -63,10 +63,12 @@ namespace Skoruba.IdentityServer4.Admin.EntityFramework.SqlServer.Extensions
         /// <typeparam name="TConfigurationDbContext"></typeparam>
         /// <typeparam name="TPersistedGrantDbContext"></typeparam>
         /// <typeparam name="TIdentityDbContext"></typeparam>
+        /// <typeparam name="TDataProtectionDbContext"></typeparam>
         /// <param name="services"></param>
         /// <param name="identityConnectionString"></param>
         /// <param name="configurationConnectionString"></param>
         /// <param name="persistedGrantConnectionString"></param>
+        /// <param name="dataProtectionConnectionString"></param>
         public static void RegisterSqlServerDbContexts<TIdentityDbContext, TConfigurationDbContext,
             TPersistedGrantDbContext, TDataProtectionDbContext>(this IServiceCollection services,
             string identityConnectionString, string configurationConnectionString,

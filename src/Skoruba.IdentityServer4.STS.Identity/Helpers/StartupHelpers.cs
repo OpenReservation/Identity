@@ -1,8 +1,8 @@
-﻿using System;
-using System.Globalization;
-using IdentityServer4.EntityFramework.Storage;
+﻿using IdentityServer4.EntityFramework.Storage;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -14,6 +14,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SendGrid;
+using Skoruba.IdentityServer4.Admin.EntityFramework.Helpers;
+using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
+using Skoruba.IdentityServer4.Admin.EntityFramework.Shared.Configuration;
+using Skoruba.IdentityServer4.Admin.EntityFramework.SqlServer.Extensions;
+using Skoruba.IdentityServer4.Shared.Authentication;
 using Skoruba.IdentityServer4.Shared.Configuration.Email;
 using Skoruba.IdentityServer4.Shared.Email;
 using Skoruba.IdentityServer4.STS.Identity.Configuration;
@@ -21,14 +26,9 @@ using Skoruba.IdentityServer4.STS.Identity.Configuration.ApplicationParts;
 using Skoruba.IdentityServer4.STS.Identity.Configuration.Constants;
 using Skoruba.IdentityServer4.STS.Identity.Configuration.Interfaces;
 using Skoruba.IdentityServer4.STS.Identity.Helpers.Localization;
+using System;
+using System.Globalization;
 using System.Linq;
-using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
-using Skoruba.IdentityServer4.Admin.EntityFramework.Shared.Configuration;
-using Skoruba.IdentityServer4.Admin.EntityFramework.SqlServer.Extensions;
-using Skoruba.IdentityServer4.Admin.EntityFramework.Helpers;
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Skoruba.IdentityServer4.Shared.Authentication;
 
 namespace Skoruba.IdentityServer4.STS.Identity.Helpers
 {
@@ -38,6 +38,7 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
         /// Register services for MVC and localization including available languages
         /// </summary>
         /// <param name="services"></param>
+        /// <param name="configuration"></param>
         public static IMvcBuilder AddMvcWithLocalization<TUser, TKey>(this IServiceCollection services, IConfiguration configuration)
             where TUser : IdentityUser<TKey>
             where TKey : IEquatable<TKey>
@@ -144,7 +145,7 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
             where TDataProtectionDbContext : DbContext, IDataProtectionKeyContext
         {
             var databaseProvider = configuration.GetSection(nameof(DatabaseProviderConfiguration)).Get<DatabaseProviderConfiguration>();
-            
+
             var identityConnectionString = configuration.GetConnectionString(ConfigurationConsts.IdentityDbConnectionStringKey);
             var configurationConnectionString = configuration.GetConnectionString(ConfigurationConsts.ConfigurationDbConnectionStringKey);
             var persistedGrantsConnectionString = configuration.GetConnectionString(ConfigurationConsts.PersistedGrantDbConnectionStringKey);
@@ -372,7 +373,7 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
             where TDataProtectionDbContext : DbContext, IDataProtectionKeyContext
         {
             var configurationDbConnectionString = configuration.GetConnectionString(ConfigurationConsts.ConfigurationDbConnectionStringKey);
-            var persistedGrantsDbConnectionString = configuration.GetConnectionString(ConfigurationConsts.PersistedGrantDbConnectionStringKey);            
+            var persistedGrantsDbConnectionString = configuration.GetConnectionString(ConfigurationConsts.PersistedGrantDbConnectionStringKey);
             var identityDbConnectionString = configuration.GetConnectionString(ConfigurationConsts.IdentityDbConnectionStringKey);
             var dataProtectionDbConnectionString = configuration.GetConnectionString(ConfigurationConsts.DataProtectionDbConnectionStringKey);
 
@@ -406,6 +407,7 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
                                 healthQuery: $"SELECT TOP 1 * FROM dbo.[{dataProtectionTableName}]");
 
                         break;
+
                     case DatabaseProviderType.PostgreSQL:
                         healthChecksBuilder
                             .AddNpgSql(configurationDbConnectionString, name: "ConfigurationDb",
@@ -417,6 +419,7 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
                             .AddNpgSql(dataProtectionDbConnectionString, name: "DataProtectionDb",
                                 healthQuery: $"SELECT * FROM \"{dataProtectionTableName}\"  LIMIT 1");
                         break;
+
                     case DatabaseProviderType.MySql:
                         healthChecksBuilder
                             .AddMySql(configurationDbConnectionString, name: "ConfigurationDb")
@@ -424,6 +427,7 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
                             .AddMySql(identityDbConnectionString, name: "IdentityDb")
                             .AddMySql(dataProtectionDbConnectionString, name: "DataProtectionDb");
                         break;
+
                     default:
                         throw new NotImplementedException($"Health checks not defined for database provider {databaseProvider.ProviderType}");
                 }
