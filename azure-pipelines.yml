@@ -49,12 +49,12 @@ steps:
   displayName: 'Push stable image'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
-# - task: SSH@0
-#   displayName: 'Run shell inline on remote machine'
-#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
-#   inputs:
-#     sshEndpoint: 'weihanli-vm'
-#     runOptions: inline
+- task: SSH@0
+  displayName: 'Run shell inline on remote machine'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+  inputs:
+    sshEndpoint: 'weihanli-vm'
+    runOptions: inline
 
-#     inline: |
-#       kubectl set image deployment/identity-server identity-server=$(imageName) --record=true
+    inline: |
+      kubectl set image deployment/identityserver identityserver=$(imageName) --record=true
