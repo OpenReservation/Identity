@@ -52,12 +52,20 @@ namespace Skoruba.IdentityServer4.STS.Identity
             RegisterAuthorization(services);
 
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, IdentityServerDataProtectionDbContext>(Configuration);
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+                options.ForwardLimit = null;
+                options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCookiePolicy();
             app.UseForwardedHeaders();
+            app.UseCookiePolicy();
 
             if (env.IsDevelopment())
             {

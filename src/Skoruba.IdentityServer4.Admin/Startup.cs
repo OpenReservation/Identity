@@ -1,6 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using HealthChecks.UI.Client;
+﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -9,14 +9,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Skoruba.AuditLogging.EntityFramework.Entities;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
+using Skoruba.IdentityServer4.Admin.Configuration;
+using Skoruba.IdentityServer4.Admin.Configuration.Constants;
 using Skoruba.IdentityServer4.Admin.Configuration.Interfaces;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Shared.DbContexts;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Shared.Entities.Identity;
 using Skoruba.IdentityServer4.Admin.Helpers;
-using Skoruba.IdentityServer4.Admin.Configuration;
-using Skoruba.IdentityServer4.Admin.Configuration.Constants;
 using System;
-using Microsoft.AspNetCore.DataProtection;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Skoruba.IdentityServer4.Admin
 {
@@ -64,7 +64,7 @@ namespace Skoruba.IdentityServer4.Admin
                                 UsersDto<UserDto<string>, string>, RolesDto<RoleDto<string>, string>, UserRolesDto<RoleDto<string>, string, string>,
                                 UserClaimsDto<string>, UserProviderDto<string>, UserProvidersDto<string>, UserChangePasswordDto<string>,
                                 RoleClaimsDto<string>, UserClaimDto<string>, RoleClaimDto<string>>();
-            
+
             // Add all dependencies for Asp.Net Core Identity in MVC - these dependencies are injected into generic Controllers
             // Including settings for MVC and Localization
             // If you want to change primary keys or use another db model for Asp.Net Core Identity:
@@ -82,10 +82,20 @@ namespace Skoruba.IdentityServer4.Admin
             services.AddAuditEventLogging<AdminAuditLogDbContext, AuditLog>(Configuration);
 
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, AdminLogDbContext, AdminAuditLogDbContext, IdentityServerDataProtectionDbContext>(Configuration, rootConfiguration.AdminConfiguration);
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+                options.ForwardLimit = null;
+                options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseForwardedHeaders();
+
             app.UseCookiePolicy();
 
             if (env.IsDevelopment())
@@ -110,13 +120,13 @@ namespace Skoruba.IdentityServer4.Admin
 
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(endpoint => 
-            { 
+            app.UseEndpoints(endpoint =>
+            {
                 endpoint.MapDefaultControllerRoute();
                 endpoint.MapHealthChecks("/health", new HealthCheckOptions
                 {
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                });                
+                });
             });
         }
 
