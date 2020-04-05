@@ -11,7 +11,7 @@ pool:
 
 variables:
   tagName: '$(Build.BuildNumber)'
-  repoName: 'idenityserver'
+  repoName: 'identityserver'
   stableImageName: '$(dockerId)/$(repoName):stable'
   latestImageName: '$(dockerId)/$(repoName):latest'
   branchImageName: '$(dockerId)/$(repoName):$(Build.SourceBranchName)'
