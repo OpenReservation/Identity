@@ -1,8 +1,10 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.2-buster-slim AS base
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS base
+RUN apk add icu-libs
+# https://www.abhith.net/blog/docker-sql-error-on-aspnet-core-alpine/
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT false
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1.102-buster AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
 WORKDIR /src
 COPY ["src/Skoruba.IdentityServer4.Admin/Skoruba.IdentityServer4.Admin.csproj", "src/Skoruba.IdentityServer4.Admin/"]
 COPY ["src/Skoruba.IdentityServer4.Admin.EntityFramework.Identity/Skoruba.IdentityServer4.Admin.EntityFramework.Identity.csproj", "src/Skoruba.IdentityServer4.Admin.EntityFramework.Identity/"]
