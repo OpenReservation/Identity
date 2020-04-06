@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="WeihanLi.Common" Version="1.0.31" />
         <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="3.0.0" />
         <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="3.0.0" />
         <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="3.0.0" />

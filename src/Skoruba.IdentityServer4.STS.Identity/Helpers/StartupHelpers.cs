@@ -308,7 +308,14 @@ namespace Skoruba.IdentityServer4.STS.Identity.Helpers
                     options.Events.RaiseSuccessEvents = true;
 
                     if (!string.IsNullOrEmpty(advancedConfiguration.PublicOrigin))
+                    {
                         options.PublicOrigin = advancedConfiguration.PublicOrigin;
+                    }
+                    var issuer = configuration.GetAppSetting("Issuer");
+                    if (!string.IsNullOrEmpty(issuer))
+                    {
+                        options.IssuerUri = issuer;
+                    }
                 })
                 .AddConfigurationStore<TConfigurationDbContext>()
                 .AddOperationalStore<TPersistedGrantDbContext>()
