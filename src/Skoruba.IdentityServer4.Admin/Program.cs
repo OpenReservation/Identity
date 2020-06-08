@@ -16,7 +16,7 @@ namespace Skoruba.IdentityServer4.Admin
     {
         private const string SeedArgs = "/seed";
 
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var configuration = GetConfiguration(args);
 
