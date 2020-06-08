@@ -80,7 +80,6 @@ namespace Skoruba.IdentityServer4.STS.Identity
             app.UseMvcLocalizationServices();
 
             app.UseRouting();
-            app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseAuthorization();
             app.UseEndpoints(endpoint =>
             {
@@ -111,6 +110,7 @@ namespace Skoruba.IdentityServer4.STS.Identity
 
         public virtual void UseAuthentication(IApplicationBuilder app)
         {
+            app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseIdentityServer();
         }
 
