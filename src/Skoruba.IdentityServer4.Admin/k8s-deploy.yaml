@@ -35,7 +35,7 @@ spec:
             - containerPort: 80
           volumeMounts:
           - name: settings
-            mountPath: /app/appsettings.json
+            mountPath: /app/appsettings.Production.json
             subPath: appsettings
 
       volumes:
