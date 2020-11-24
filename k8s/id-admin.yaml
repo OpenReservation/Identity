@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-admin
+  labels:
+    app: identity-admin
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: identity-admin
+  minReadySeconds: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  template:
+    metadata:
+      labels:
+        app: identity-admin
+    
+    spec:
+      containers:
+        - name: identity-admin
+          image: weihanli/identity-admin:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+          - name: settings
+            mountPath: /app/appsettings.Production.json
+            subPath: appsettings
+
+      volumes:
+        - name: settings
+          configMap:
+            name: identityserver-configs
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-admin
+spec:
+  selector:
+    app: identity-admin
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 31211
+  type: NodePort

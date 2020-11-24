@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identityserver-configs
+  namespace: default
+data:
+  appsettings: |
+    {      
+      "ConnectionStrings": {
+        "ConfigurationDbConnection": "",
+        "PersistedGrantDbConnection": "",
+        "IdentityDbConnection": "",
+        "AdminLogDbConnection": "",
+        "AdminAuditLogDbConnection": "",
+        "DataProtectionDbConnection": ""
+      },
+      "AdminConfiguration": {
+        "IdentityAdminRedirectUri": "https://id-admin.weihanli.xyz/signin-oidc",
+        "IdentityServerBaseUrl": "https://id.weihanli.xyz",
+        "IdentityAdminCookieName": "IdentityServerAdmin",
+        "IdentityAdminCookieExpiresUtcHours": 12,
+        "RequireHttpsMetadata": false,
+        "TokenValidationClaimName": "name",
+        "TokenValidationClaimRole": "role",
+        "ClientId": "skoruba_identity_admin",
+        "ClientSecret": "skoruba_admin_client_secret",
+        "OidcResponseType": "code id_token",
+        "Scopes": [
+          "openid",
+          "profile",
+          "email",
+          "roles"
+        ],
+        "AdministrationRole": "SkorubaIdentityAdminAdministrator"
+      },
+      "SendGridConfiguration": {
+        "ApiKey": "SG.",
+        "SourceEmail": "noreply@weihanli.xyz",
+        "SourceName": "WeihanLi Account Center"
+      },
+      "ExternalProvidersConfiguration": {
+        "UseGitHubProvider": true,
+        "GitHubClientId": "ef2d301855c856fab3c0",
+        "GitHubClientSecret": ""
+      }
+    }

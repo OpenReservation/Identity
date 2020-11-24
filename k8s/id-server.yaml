@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identityserver
+  labels:
+    app: identityserver
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: identityserver
+  minReadySeconds: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  template:
+    metadata:
+      labels:
+        app: identityserver
+    
+    spec:
+      containers:
+        - name: identityserver
+          image: weihanli/identityserver:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+          - name: settings
+            mountPath: /app/appsettings.Production.json
+            subPath: appsettings
+
+      volumes:
+        - name: settings
+          configMap:
+            name: identityserver-configs
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identityserver
+spec:
+  selector:
+    app: identityserver
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 31210
+  type: NodePort
