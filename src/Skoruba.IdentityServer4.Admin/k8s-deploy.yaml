@@ -42,10 +42,6 @@ spec:
         - name: settings
           configMap:
             name: identityserver-configs
-      dnsConfig:
-        options:
-          - name: ndots
-            value: "1"
 
 ---
 apiVersion: v1
